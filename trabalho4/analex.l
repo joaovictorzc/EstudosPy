@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include "sint.h"
 #include "tabsimb.h"
 int linha = 1;

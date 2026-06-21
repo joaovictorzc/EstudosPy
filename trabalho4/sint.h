@@ -117,6 +117,7 @@ union YYSTYPE
 
 	struct ids{
 		int ids[50];
+		int init_tipo[50];
 		int tam;
 	} id_list;
 	struct simb{

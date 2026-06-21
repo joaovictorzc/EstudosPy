@@ -1242,97 +1242,168 @@ yyreduce:
     {
   case 2: /* ProgL: Prog  */
 #line 71 "sint.y"
-             { printf("Compilação Finalizada\n"); }
+             { printf("Compilação Finalizada"); }
 #line 1247 "sint.c"
     break;
 
   case 5: /* Function: TypeF ID '(' ParamList ')' '{' Decls Statement_Seq '}'  */
 #line 79 "sint.y"
-                                                                 { set_type((yyvsp[-7].simbolo).posicao, (yyvsp[-8].val)); set_num_param((yyvsp[-7].simbolo).posicao, (yyvsp[-5].id_list).tam); }
+                                                                 {
+		set_type((yyvsp[-7].simbolo).posicao, (yyvsp[-8].val));
+		set_categoria((yyvsp[-7].simbolo).posicao, CAT_FUNC);
+		set_num_param((yyvsp[-7].simbolo).posicao, (yyvsp[-5].id_list).tam);
+	}
 #line 1253 "sint.c"
     break;
 
   case 6: /* Function: TypeF ID '(' ')' '{' Decls Statement_Seq '}'  */
 #line 80 "sint.y"
-                                                         { set_type((yyvsp[-6].simbolo).posicao, (yyvsp[-7].val)); set_num_param((yyvsp[-6].simbolo).posicao, 0); }
+                                                         {
+		set_type((yyvsp[-6].simbolo).posicao, (yyvsp[-7].val));
+		set_categoria((yyvsp[-6].simbolo).posicao, CAT_FUNC);
+		set_num_param((yyvsp[-6].simbolo).posicao, 0);
+	}
 #line 1259 "sint.c"
     break;
 
   case 7: /* FunctionCall: ID '(' ArgList ')'  */
 #line 84 "sint.y"
-                       { verifica_func_declarada((yyvsp[-3].simbolo).posicao); if(param_args_diferentes((yyvsp[-3].simbolo).posicao, (yyvsp[-1].id_list).tam)) yyerror("Argumentos e parâmetros da função não coincidem."); (yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo; }
+                       {
+		verifica_func_declarada((yyvsp[-3].simbolo).posicao);
+		if (param_args_diferentes((yyvsp[-3].simbolo).posicao, (yyvsp[-1].id_list).tam))
+			yyerror("Argumentos e parâmetros da função não coincidem.");
+		(yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo;
+	}
 #line 1265 "sint.c"
     break;
 
   case 8: /* FunctionCall: ID '(' ')'  */
 #line 85 "sint.y"
-                  { verifica_func_declarada((yyvsp[-2].simbolo).posicao); if(param_args_diferentes((yyvsp[-2].simbolo).posicao, 0)) yyerror("Argumentos e parâmetros da função não coincidem."); (yyval.val) = Tabela[(yyvsp[-2].simbolo).posicao].tipo; }
+                  {
+		verifica_func_declarada((yyvsp[-2].simbolo).posicao);
+		if (param_args_diferentes((yyvsp[-2].simbolo).posicao, 0))
+			yyerror("Argumentos e parâmetros da função não coincidem.");
+		(yyval.val) = Tabela[(yyvsp[-2].simbolo).posicao].tipo;
+	}
 #line 1271 "sint.c"
     break;
 
   case 9: /* ArgList: ArgList ',' Arg  */
 #line 89 "sint.y"
-                    { (yyval.id_list) = (yyvsp[-2].id_list); (yyval.id_list).tam++; }
+                    {
+		(yyval.id_list) = (yyvsp[-2].id_list);
+		(yyval.id_list).tam = (yyvsp[-2].id_list).tam + 1;
+	}
 #line 1277 "sint.c"
     break;
 
   case 10: /* ArgList: Arg  */
 #line 90 "sint.y"
-          { (yyval.id_list).tam = 1; }
+          {
+		(yyval.id_list).tam = 1;
+	}
 #line 1283 "sint.c"
     break;
 
   case 16: /* ParamList: ParamList ',' Type ID  */
 #line 102 "sint.y"
-                          { (yyval.id_list) = (yyvsp[-3].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam++; set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val)); set_num_param((yyvsp[0].simbolo).posicao, -1); }
+                          {
+		(yyval.id_list) = (yyvsp[-3].id_list);
+		(yyval.id_list).ids[(yyvsp[-3].id_list).tam] = (yyvsp[0].simbolo).posicao;
+		(yyval.id_list).init_tipo[(yyvsp[-3].id_list).tam] = -1;
+		(yyval.id_list).tam = (yyvsp[-3].id_list).tam + 1;
+		set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val));
+		set_categoria((yyvsp[0].simbolo).posicao, CAT_VAR);
+	}
 #line 1289 "sint.c"
     break;
 
   case 17: /* ParamList: Type ID  */
 #line 103 "sint.y"
-              { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam = 1; set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val)); set_num_param((yyvsp[0].simbolo).posicao, -1); }
+              {
+		(yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao;
+		(yyval.id_list).init_tipo[0] = -1;
+		(yyval.id_list).tam = 1;
+		set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val));
+		set_categoria((yyvsp[0].simbolo).posicao, CAT_VAR);
+	}
 #line 1295 "sint.c"
     break;
 
   case 20: /* Decl: Type IDs  */
 #line 112 "sint.y"
-                 { int i; for(i = 0; i < (yyvsp[0].id_list).tam; i++){ if(Tabela[(yyvsp[0].id_list).ids[i]].tipo != -1) verifica_tipos_atrib((yyvsp[-1].val), Tabela[(yyvsp[0].id_list).ids[i]].tipo); set_type((yyvsp[0].id_list).ids[i], (yyvsp[-1].val)); set_num_param((yyvsp[0].id_list).ids[i], -1); } }
+                 {
+		int i;
+		for (i = 0; i < (yyvsp[0].id_list).tam; i++) {
+			if ((yyvsp[0].id_list).init_tipo[i] != -1)
+				verifica_tipos_atrib((yyvsp[-1].val), (yyvsp[0].id_list).init_tipo[i]);
+			set_type((yyvsp[0].id_list).ids[i], (yyvsp[-1].val));
+			set_categoria((yyvsp[0].id_list).ids[i], CAT_VAR);
+		}
+	}
 #line 1301 "sint.c"
     break;
 
   case 21: /* IDs: IDs ',' ID  */
 #line 116 "sint.y"
-                     { (yyval.id_list) = (yyvsp[-2].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam++; }
+                     {
+		(yyval.id_list) = (yyvsp[-2].id_list);
+		(yyval.id_list).ids[(yyvsp[-2].id_list).tam] = (yyvsp[0].simbolo).posicao;
+		(yyval.id_list).init_tipo[(yyvsp[-2].id_list).tam] = -1;
+		(yyval.id_list).tam = (yyvsp[-2].id_list).tam + 1;
+	}
 #line 1307 "sint.c"
     break;
 
   case 22: /* IDs: IDs ',' ID '[' NUM ']'  */
 #line 117 "sint.y"
-                                 { (yyval.id_list) = (yyvsp[-5].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[-3].simbolo).posicao; (yyval.id_list).tam++; }
+                                 {
+		(yyval.id_list) = (yyvsp[-5].id_list);
+		(yyval.id_list).ids[(yyvsp[-5].id_list).tam] = (yyvsp[-3].simbolo).posicao;
+		(yyval.id_list).init_tipo[(yyvsp[-5].id_list).tam] = -1;
+		(yyval.id_list).tam = (yyvsp[-5].id_list).tam + 1;
+	}
 #line 1313 "sint.c"
     break;
 
   case 23: /* IDs: ID  */
 #line 118 "sint.y"
-             { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam = 1; }
+             {
+		(yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao;
+		(yyval.id_list).init_tipo[0] = -1;
+		(yyval.id_list).tam = 1;
+	}
 #line 1319 "sint.c"
     break;
 
   case 24: /* IDs: ID '[' NUM ']'  */
 #line 119 "sint.y"
-                         { (yyval.id_list).ids[0] = (yyvsp[-3].simbolo).posicao; (yyval.id_list).tam = 1; }
+                         {
+		(yyval.id_list).ids[0] = (yyvsp[-3].simbolo).posicao;
+		(yyval.id_list).init_tipo[0] = -1;
+		(yyval.id_list).tam = 1;
+	}
 #line 1325 "sint.c"
     break;
 
   case 25: /* IDs: IDs ',' AtribuicaoD  */
 #line 120 "sint.y"
-                              { (yyval.id_list) = (yyvsp[-2].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam++; }
+                              {
+		(yyval.id_list) = (yyvsp[-2].id_list);
+		(yyval.id_list).ids[(yyvsp[-2].id_list).tam] = (yyvsp[0].simbolo).posicao;
+		(yyval.id_list).init_tipo[(yyvsp[-2].id_list).tam] = (yyvsp[0].simbolo).tipo;
+		(yyval.id_list).tam = (yyvsp[-2].id_list).tam + 1;
+	}
 #line 1331 "sint.c"
     break;
 
   case 26: /* IDs: AtribuicaoD  */
 #line 121 "sint.y"
-                      { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam = 1; }
+                      {
+		(yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao;
+		(yyval.id_list).init_tipo[0] = (yyvsp[0].simbolo).tipo;
+		(yyval.id_list).tam = 1;
+	}
 #line 1337 "sint.c"
     break;
 
@@ -1368,31 +1439,45 @@ yyreduce:
 
   case 34: /* Statement: Atribuicao ';'  */
 #line 141 "sint.y"
-                         { verifica_var_declarada((yyvsp[-1].val)); }
+                         { /* TODO: verificar uso de variável declarada antes da atribuição */ }
 #line 1373 "sint.c"
     break;
 
   case 48: /* Atribuicao: ID '[' NUM ']' '=' Exp  */
 #line 169 "sint.y"
-                                    { verifica_var_declarada((yyvsp[-5].simbolo).posicao); verifica_tipos_atrib(Tabela[(yyvsp[-5].simbolo).posicao].tipo, (yyvsp[0].val)); (yyval.val) = (yyvsp[-5].simbolo).posicao; }
+                                    {
+		verifica_var_declarada((yyvsp[-5].simbolo).posicao);
+		verifica_tipos_atrib(Tabela[(yyvsp[-5].simbolo).posicao].tipo, (yyvsp[0].val));
+		(yyval.val) = (yyvsp[-5].simbolo).posicao;
+	}
 #line 1379 "sint.c"
     break;
 
   case 49: /* Atribuicao: ID '=' Exp  */
 #line 170 "sint.y"
-                 { verifica_var_declarada((yyvsp[-2].simbolo).posicao); verifica_tipos_atrib(Tabela[(yyvsp[-2].simbolo).posicao].tipo, (yyvsp[0].val)); (yyval.val) = (yyvsp[-2].simbolo).posicao; }
+                 {
+		verifica_var_declarada((yyvsp[-2].simbolo).posicao);
+		verifica_tipos_atrib(Tabela[(yyvsp[-2].simbolo).posicao].tipo, (yyvsp[0].val));
+		(yyval.val) = (yyvsp[-2].simbolo).posicao;
+	}
 #line 1385 "sint.c"
     break;
 
   case 50: /* AtribuicaoD: ID '[' NUM ']' '=' Exp  */
 #line 173 "sint.y"
-                                     { (yyval.simbolo).posicao = (yyvsp[-5].simbolo).posicao; (yyval.simbolo).tipo = (yyvsp[0].val); Tabela[(yyvsp[-5].simbolo).posicao].tipo = (yyvsp[0].val); }
+                                     {
+		(yyval.simbolo).posicao = (yyvsp[-5].simbolo).posicao;
+		(yyval.simbolo).tipo = (yyvsp[0].val);
+	}
 #line 1391 "sint.c"
     break;
 
   case 51: /* AtribuicaoD: ID '=' Exp  */
 #line 174 "sint.y"
-                 { (yyval.simbolo).posicao = (yyvsp[-2].simbolo).posicao; (yyval.simbolo).tipo = (yyvsp[0].val); Tabela[(yyvsp[-2].simbolo).posicao].tipo = (yyvsp[0].val); }
+                 {
+		(yyval.simbolo).posicao = (yyvsp[-2].simbolo).posicao;
+		(yyval.simbolo).tipo = (yyvsp[0].val);
+	}
 #line 1397 "sint.c"
     break;
 
@@ -1494,19 +1579,25 @@ yyreduce:
 
   case 68: /* Exp: ID '[' Exp ']'  */
 #line 194 "sint.y"
-                         { verifica_var_declarada((yyvsp[-3].simbolo).posicao); (yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo; }
+                         {
+		verifica_var_declarada((yyvsp[-3].simbolo).posicao);
+		(yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo;
+	}
 #line 1499 "sint.c"
     break;
 
   case 69: /* Exp: ID  */
 #line 195 "sint.y"
-              { verifica_var_declarada((yyvsp[0].simbolo).posicao); (yyval.val) = Tabela[(yyvsp[0].simbolo).posicao].tipo; }
+              {
+		verifica_var_declarada((yyvsp[0].simbolo).posicao);
+		(yyval.val) = Tabela[(yyvsp[0].simbolo).posicao].tipo;
+	}
 #line 1505 "sint.c"
     break;
 
   case 70: /* Exp: CHARACTERE  */
 #line 196 "sint.y"
-                     { (yyval.val) = CHAR; }
+                     { (yyval.val) = CHAR;/* TODO: definir tipo char para literal de caractere */ }
 #line 1511 "sint.c"
     break;
 
@@ -1712,22 +1803,31 @@ yyreturnlab:
 
 #line 201 "sint.y"
   
-int main(int argc, char **argv) {     
-  yyin = fopen(argv[1],"r");
-  yyparse();      
-} 
+int main(int argc, char **argv) {
+	if (argc < 2) {
+		fprintf(stderr, "Informe o arquivo de entrada.\n");
+		return 1;
+	}
+	yyin = fopen(argv[1],"r");
+	if (!yyin) {
+		perror(argv[1]);
+		return 1;
+	}
+	yyparse();
+	return 0;
+}
 
 
 void verifica_var_declarada(int pos){
-	if(pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].num_param != -1)
+	if (pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].categoria != CAT_VAR)
 		yyerror("Uso de variável não declarada!");
 }
 
 void verifica_func_declarada(int pos){
-	if(pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].num_param < 0)
+	if (pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].categoria != CAT_FUNC)
 		yyerror("Uso de função não declarada!");
 }
-void verifica_tipos_atrib(int tipo1, int tipo2){
-	if(tipos_inconsistentes_atrib(tipo1, tipo2))
+void verifica_tipos_atrib(int tipo_destino, int tipo_origem){
+	if (tipos_inconsistentes_atrib(tipo_destino, tipo_origem))
 		yyerror("Tipos incompatíveis!");
 }

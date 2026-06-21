@@ -1,37 +1,40 @@
-#include "sint.h"
-#include "stdio.h"
+#ifndef TIPOS_H
+#define TIPOS_H
 
-int retorna_maior_tipo(int tipo1, int tipo2){
-	if(tipo1 == FLOAT || tipo2 == FLOAT)
-        return FLOAT;
-    if(tipo1 == INT || tipo2 == INT)
-        return INT;
-    if(tipo1 == CHAR || tipo2 == CHAR)
-        return CHAR;
+#include "sint.h"
+#include <stdio.h>
+
+static int rank_tipo(int tipo){
+    if(tipo == CHAR) return 1;
+    if(tipo == INT) return 2;
+    if(tipo == FLOAT) return 3;
     return 0;
 }
 
-int get_tam_tipo(int tipo){
-    switch(tipo){
-        case CHAR:
-            return 1;
-        case INT:
-            return 4;
-        case FLOAT:
-            return 8;
-        case VOID:
-            return 0;
-        default:
-            return 0;
-    }
+int retorna_maior_tipo(int tipo1, int tipo2){
+    if(rank_tipo(tipo1) >= rank_tipo(tipo2))
+        return tipo1;
+    return tipo2;
 }
 
-int tipos_inconsistentes_atrib(int tipo1, int tipo2){
-    if(tipo1 == tipo2)
+int get_tam_tipo(int tipo){
+    if(tipo == CHAR)
+        return 1;
+    if(tipo == INT)
+        return 4;
+    if(tipo == FLOAT)
+        return 4;
+    if(tipo == VOID)
         return 0;
-    if(tipo1 == FLOAT && (tipo2 == INT || tipo2 == CHAR))
-        return 0;
-    if(tipo1 == INT && tipo2 == CHAR)
-        return 0;
-    return 1;
+    return 0;
 }
+
+int tipos_inconsistentes_atrib(int tipo_destino, int tipo_origem){
+    if(tipo_destino == -1 || tipo_origem == -1)
+        return 1;
+    if(tipo_destino == VOID || tipo_origem == VOID)
+        return 1;
+    return rank_tipo(tipo_origem) > rank_tipo(tipo_destino);
+}
+
+#endif
