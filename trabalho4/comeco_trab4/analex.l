@@ -27,6 +27,7 @@ CHARACTERE \'[a-zA-Z0-9]\'
 "return" {return RETURN;}
 "void" {return VOID;}
 "endif" {return ENDIF;}
+"do" {return DO;}
 
 
 "+" {return '+';}
@@ -41,6 +42,7 @@ CHARACTERE \'[a-zA-Z0-9]\'
 ">" {return '>';}
 "<" {return '<';}
 "==" {return EQ;} 	
+"!=" {return NEQ;}
 
 
 "&&" {return AND;}

@@ -1242,157 +1242,157 @@ yyreduce:
     {
   case 2: /* ProgL: Prog  */
 #line 71 "sint.y"
-             { printf("Compilação finalizada com sucesso."); }
+             { printf("Compilação Finalizada\n"); }
 #line 1247 "sint.c"
     break;
 
   case 5: /* Function: TypeF ID '(' ParamList ')' '{' Decls Statement_Seq '}'  */
 #line 79 "sint.y"
-                                                                 { /* TODO: registrar o tipo de retorno da função e a quantidade de parâmetros declarados */ }
+                                                                 { set_type((yyvsp[-7].simbolo).posicao, (yyvsp[-8].val)); set_num_param((yyvsp[-7].simbolo).posicao, (yyvsp[-5].id_list).tam); }
 #line 1253 "sint.c"
     break;
 
   case 6: /* Function: TypeF ID '(' ')' '{' Decls Statement_Seq '}'  */
 #line 80 "sint.y"
-                                                         { /* TODO: registrar função sem parâmetros e associar seu tipo de retorno */ }
+                                                         { set_type((yyvsp[-6].simbolo).posicao, (yyvsp[-7].val)); set_num_param((yyvsp[-6].simbolo).posicao, 0); }
 #line 1259 "sint.c"
     break;
 
   case 7: /* FunctionCall: ID '(' ArgList ')'  */
 #line 84 "sint.y"
-                       { /* TODO: validar a existência da função, checar número de argumentos e definir o tipo produzido pela chamada */ }
+                       { verifica_func_declarada((yyvsp[-3].simbolo).posicao); if(param_args_diferentes((yyvsp[-3].simbolo).posicao, (yyvsp[-1].id_list).tam)) yyerror("Argumentos e parâmetros da função não coincidem."); (yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo; }
 #line 1265 "sint.c"
     break;
 
   case 8: /* FunctionCall: ID '(' ')'  */
 #line 85 "sint.y"
-                  { /* TODO: validar chamada de função sem argumentos e definir o tipo de retorno correspondente */ }
+                  { verifica_func_declarada((yyvsp[-2].simbolo).posicao); if(param_args_diferentes((yyvsp[-2].simbolo).posicao, 0)) yyerror("Argumentos e parâmetros da função não coincidem."); (yyval.val) = Tabela[(yyvsp[-2].simbolo).posicao].tipo; }
 #line 1271 "sint.c"
     break;
 
   case 9: /* ArgList: ArgList ',' Arg  */
 #line 89 "sint.y"
-                    { /* TODO: acumular quantidade de argumentos já reconhecidos */ }
+                    { (yyval.id_list) = (yyvsp[-2].id_list); (yyval.id_list).tam++; }
 #line 1277 "sint.c"
     break;
 
   case 10: /* ArgList: Arg  */
 #line 90 "sint.y"
-          { /* TODO: iniciar contagem de argumentos */ }
+          { (yyval.id_list).tam = 1; }
 #line 1283 "sint.c"
     break;
 
   case 16: /* ParamList: ParamList ',' Type ID  */
 #line 102 "sint.y"
-                          { /* TODO: propagar símbolos já coletados, adicionar novo parâmetro e registrar seu tipo */ }
+                          { (yyval.id_list) = (yyvsp[-3].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam++; set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val)); set_num_param((yyvsp[0].simbolo).posicao, -1); }
 #line 1289 "sint.c"
     break;
 
   case 17: /* ParamList: Type ID  */
 #line 103 "sint.y"
-              { /* TODO: inicializar lista de parâmetros com o identificador atual e configurar seu tipo */ }
+              { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam = 1; set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val)); set_num_param((yyvsp[0].simbolo).posicao, -1); }
 #line 1295 "sint.c"
     break;
 
   case 20: /* Decl: Type IDs  */
 #line 112 "sint.y"
-                 { Tabela[(yyvsp[0].id_list).ids[0]].tipo = (yyvsp[-1].val);/* TODO: atribuir o tipo declarado a cada identificador e marcar que não se trata de função */ }
+                 { int i; for(i = 0; i < (yyvsp[0].id_list).tam; i++){ if(Tabela[(yyvsp[0].id_list).ids[i]].tipo != -1) verifica_tipos_atrib((yyvsp[-1].val), Tabela[(yyvsp[0].id_list).ids[i]].tipo); set_type((yyvsp[0].id_list).ids[i], (yyvsp[-1].val)); set_num_param((yyvsp[0].id_list).ids[i], -1); } }
 #line 1301 "sint.c"
     break;
 
   case 21: /* IDs: IDs ',' ID  */
 #line 116 "sint.y"
-                     { /* TODO: combinar identificadores já armazenados com o novo símbolo simples */ }
+                     { (yyval.id_list) = (yyvsp[-2].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam++; }
 #line 1307 "sint.c"
     break;
 
   case 22: /* IDs: IDs ',' ID '[' NUM ']'  */
 #line 117 "sint.y"
-                                 { /* TODO: registrar identificador vetorial adicional */ }
+                                 { (yyval.id_list) = (yyvsp[-5].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[-3].simbolo).posicao; (yyval.id_list).tam++; }
 #line 1313 "sint.c"
     break;
 
   case 23: /* IDs: ID  */
 #line 118 "sint.y"
-             { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; /* TODO: iniciar lista com identificador simples */ }
+             { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam = 1; }
 #line 1319 "sint.c"
     break;
 
   case 24: /* IDs: ID '[' NUM ']'  */
 #line 119 "sint.y"
-                         { /* TODO: iniciar lista com identificador vetorial */ }
+                         { (yyval.id_list).ids[0] = (yyvsp[-3].simbolo).posicao; (yyval.id_list).tam = 1; }
 #line 1325 "sint.c"
     break;
 
   case 25: /* IDs: IDs ',' AtribuicaoD  */
 #line 120 "sint.y"
-                              { /* TODO: incluir identificador proveniente de declaração com atribuição */ }
+                              { (yyval.id_list) = (yyvsp[-2].id_list); (yyval.id_list).ids[(yyval.id_list).tam] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam++; }
 #line 1331 "sint.c"
     break;
 
   case 26: /* IDs: AtribuicaoD  */
 #line 121 "sint.y"
-                      { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; /* TODO: iniciar lista com identificador declarado via atribuição */ }
+                      { (yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao; (yyval.id_list).tam = 1; }
 #line 1337 "sint.c"
     break;
 
   case 27: /* TypeF: VOID  */
 #line 125 "sint.y"
-               { /* TODO: definir o tipo de retorno como void */ }
+               { (yyval.val) = VOID; }
 #line 1343 "sint.c"
     break;
 
   case 28: /* TypeF: Type  */
 #line 126 "sint.y"
-               { /* TODO: propagar tipo retornado pela produção Type */ }
+               { (yyval.val) = (yyvsp[0].val); }
 #line 1349 "sint.c"
     break;
 
   case 29: /* Type: INT  */
 #line 130 "sint.y"
-              { /* TODO: associar tipo inteiro ao token INT */ }
+              { (yyval.val) = INT; }
 #line 1355 "sint.c"
     break;
 
   case 30: /* Type: CHAR  */
 #line 131 "sint.y"
-               { /* TODO: associar tipo char ao token CHAR */ }
+               { (yyval.val) = CHAR; }
 #line 1361 "sint.c"
     break;
 
   case 31: /* Type: FLOAT  */
 #line 132 "sint.y"
-                { /* TODO: associar tipo float ao token FLOAT */ }
+                { (yyval.val) = FLOAT; }
 #line 1367 "sint.c"
     break;
 
   case 34: /* Statement: Atribuicao ';'  */
 #line 141 "sint.y"
-                         { /* TODO: verificar uso de variável declarada antes da atribuição */ }
+                         { verifica_var_declarada((yyvsp[-1].val)); }
 #line 1373 "sint.c"
     break;
 
   case 48: /* Atribuicao: ID '[' NUM ']' '=' Exp  */
 #line 169 "sint.y"
-                                    { /* TODO: garantir que o identificador vetorial foi declarado, checar compatibilidade de tipos e devolver posição na tabela */ }
+                                    { verifica_var_declarada((yyvsp[-5].simbolo).posicao); verifica_tipos_atrib(Tabela[(yyvsp[-5].simbolo).posicao].tipo, (yyvsp[0].val)); (yyval.val) = (yyvsp[-5].simbolo).posicao; }
 #line 1379 "sint.c"
     break;
 
   case 49: /* Atribuicao: ID '=' Exp  */
 #line 170 "sint.y"
-                 { verifica_tipos_atrib(Tabela[(yyvsp[-2].simbolo).posicao].tipo, (yyvsp[0].val));/* TODO: garantir que o identificador foi declarado, validar tipos e devolver posição na tabela */ }
+                 { verifica_var_declarada((yyvsp[-2].simbolo).posicao); verifica_tipos_atrib(Tabela[(yyvsp[-2].simbolo).posicao].tipo, (yyvsp[0].val)); (yyval.val) = (yyvsp[-2].simbolo).posicao; }
 #line 1385 "sint.c"
     break;
 
   case 50: /* AtribuicaoD: ID '[' NUM ']' '=' Exp  */
 #line 173 "sint.y"
-                                     { /* TODO: registrar posição do identificador e o tipo resultante da expressão */ }
+                                     { (yyval.simbolo).posicao = (yyvsp[-5].simbolo).posicao; (yyval.simbolo).tipo = (yyvsp[0].val); Tabela[(yyvsp[-5].simbolo).posicao].tipo = (yyvsp[0].val); }
 #line 1391 "sint.c"
     break;
 
   case 51: /* AtribuicaoD: ID '=' Exp  */
 #line 174 "sint.y"
-                 { (yyval.simbolo).posicao = (yyvsp[-2].simbolo).posicao;if((yyvsp[0].val) == FLOAT) printf("Expressao e float\n"); if((yyvsp[0].val) == INT) printf("Expressao e int\n"); if((yyvsp[0].val) == CHAR) printf("Expressao e char\n");/* TODO: registrar posição do identificador e o tipo da expressão atribuída */ }
+                 { (yyval.simbolo).posicao = (yyvsp[-2].simbolo).posicao; (yyval.simbolo).tipo = (yyvsp[0].val); Tabela[(yyvsp[-2].simbolo).posicao].tipo = (yyvsp[0].val); }
 #line 1397 "sint.c"
     break;
 
@@ -1404,7 +1404,7 @@ yyreduce:
 
   case 53: /* Exp: Exp '-' Exp  */
 #line 179 "sint.y"
-                      { /* TODO: definir tipo resultante da subtração considerando promoção de tipos */ }
+                      { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val), (yyvsp[0].val)); }
 #line 1409 "sint.c"
     break;
 
@@ -1416,67 +1416,67 @@ yyreduce:
 
   case 55: /* Exp: Exp '/' Exp  */
 #line 181 "sint.y"
-                      { /* TODO: definir tipo resultante da divisão considerando promoção de tipos */ }
+                      { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val), (yyvsp[0].val)); }
 #line 1421 "sint.c"
     break;
 
   case 56: /* Exp: Exp '>' Exp  */
 #line 182 "sint.y"
-                      { /* TODO: garantir resultado inteiro para comparação maior que */ }
+                      { (yyval.val) = INT; }
 #line 1427 "sint.c"
     break;
 
   case 57: /* Exp: Exp '<' Exp  */
 #line 183 "sint.y"
-                      { /* TODO: garantir resultado inteiro para comparação menor que */ }
+                      { (yyval.val) = INT; }
 #line 1433 "sint.c"
     break;
 
   case 58: /* Exp: Exp GE Exp  */
 #line 184 "sint.y"
-                     { /* TODO: garantir resultado inteiro para comparação maior ou igual */ }
+                     { (yyval.val) = INT; }
 #line 1439 "sint.c"
     break;
 
   case 59: /* Exp: Exp LE Exp  */
 #line 185 "sint.y"
-                     { /* TODO: garantir resultado inteiro para comparação menor ou igual */ }
+                     { (yyval.val) = INT; }
 #line 1445 "sint.c"
     break;
 
   case 60: /* Exp: Exp EQ Exp  */
 #line 186 "sint.y"
-                     { /* TODO: garantir resultado inteiro para comparação de igualdade */ }
+                     { (yyval.val) = INT; }
 #line 1451 "sint.c"
     break;
 
   case 61: /* Exp: Exp NEQ Exp  */
 #line 187 "sint.y"
-                      { /* TODO: garantir resultado inteiro para comparação de diferença */ }
+                      { (yyval.val) = INT; }
 #line 1457 "sint.c"
     break;
 
   case 62: /* Exp: Exp OR Exp  */
 #line 188 "sint.y"
-                     { /* TODO: garantir resultado inteiro para operação lógica OU */ }
+                     { (yyval.val) = INT; }
 #line 1463 "sint.c"
     break;
 
   case 63: /* Exp: Exp AND Exp  */
 #line 189 "sint.y"
-                      { /* TODO: garantir resultado inteiro para operação lógica E */ }
+                      { (yyval.val) = INT; }
 #line 1469 "sint.c"
     break;
 
   case 64: /* Exp: NOT Exp  */
 #line 190 "sint.y"
-                  { /* TODO: garantir resultado inteiro para negação lógica */ }
+                  { (yyval.val) = INT; }
 #line 1475 "sint.c"
     break;
 
   case 65: /* Exp: '(' Exp ')'  */
 #line 191 "sint.y"
-                      { /* TODO: propagar tipo da expressão entre parênteses */ }
+                      { (yyval.val) = (yyvsp[-1].val); }
 #line 1481 "sint.c"
     break;
 
@@ -1494,25 +1494,25 @@ yyreduce:
 
   case 68: /* Exp: ID '[' Exp ']'  */
 #line 194 "sint.y"
-                         { /* TODO: verificar declaração do vetor e retornar seu tipo base */ }
+                         { verifica_var_declarada((yyvsp[-3].simbolo).posicao); (yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo; }
 #line 1499 "sint.c"
     break;
 
   case 69: /* Exp: ID  */
 #line 195 "sint.y"
-              { /* TODO: verificar declaração do identificador e retornar seu tipo */ }
+              { verifica_var_declarada((yyvsp[0].simbolo).posicao); (yyval.val) = Tabela[(yyvsp[0].simbolo).posicao].tipo; }
 #line 1505 "sint.c"
     break;
 
   case 70: /* Exp: CHARACTERE  */
 #line 196 "sint.y"
-                     { (yyval.val) = CHAR;/* TODO: definir tipo char para literal de caractere */ }
+                     { (yyval.val) = CHAR; }
 #line 1511 "sint.c"
     break;
 
   case 71: /* Exp: FunctionCall  */
 #line 197 "sint.y"
-                       { /* TODO: usar tipo de retorno registrado para a função chamada */ }
+                       { (yyval.val) = (yyvsp[0].val); }
 #line 1517 "sint.c"
     break;
 
@@ -1719,16 +1719,15 @@ int main(int argc, char **argv) {
 
 
 void verifica_var_declarada(int pos){
-	/* TODO: implementar verificação de declaração prévia do identificador na tabela de símbolos */
+	if(pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].num_param != -1)
+		yyerror("Uso de variável não declarada!");
 }
 
 void verifica_func_declarada(int pos){
-	/* TODO: implementar verificação que garanta existência da função na tabela de símbolos */
+	if(pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].num_param < 0)
+		yyerror("Uso de função não declarada!");
 }
 void verifica_tipos_atrib(int tipo1, int tipo2){
-	if(tipo2 == FLOAT && tipo1 != FLOAT)
-		yyerror("Tipos incompatíveis na atribuição!");
-	if(tipo2 == INT && tipo1 == CHAR)
-		yyerror("Tipos incompatíveis na atribuição!");
-	/* TODO: implementar verificação de compatibilidade entre o tipo do identificador e da expressão */
+	if(tipos_inconsistentes_atrib(tipo1, tipo2))
+		yyerror("Tipos incompatíveis!");
 }
