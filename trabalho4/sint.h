@@ -80,34 +80,6 @@ extern int yydebug;
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Token kinds.  */
-#define YYEMPTY -2
-#define YYEOF 0
-#define YYerror 256
-#define YYUNDEF 257
-#define NUM 258
-#define NUM_REAL 259
-#define ID 260
-#define FOR 261
-#define WHILE 262
-#define IF 263
-#define ELSE 264
-#define ENDIF 265
-#define CHAR 266
-#define INT 267
-#define FLOAT 268
-#define VOID 269
-#define RETURN 270
-#define OR 271
-#define AND 272
-#define NOT 273
-#define GE 274
-#define LE 275
-#define EQ 276
-#define NEQ 277
-#define DO 278
-#define STRING 279
-#define CHARACTERE 280
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -129,7 +101,7 @@ union YYSTYPE
 	float fval;
 	char cval;
 
-#line 132 "sint.h"
+#line 105 "sint.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

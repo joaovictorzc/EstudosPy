@@ -68,11 +68,11 @@
 
 /* First part of user prologue.  */
 #line 1 "sint.y"
- 
-#include "analex.c" 
+
+#include "analex.c"
 void verifica_var_declarada(int pos);
 void verifica_func_declarada(int pos);
-void verifica_tipos_atrib(int tipo1, int tipo2);
+void verifica_tipos_atrib(int tipo_destino, int tipo_origem);
 
 #line 78 "sint.c"
 
@@ -552,16 +552,16 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    71,    71,    74,    75,    79,    80,    84,    85,    89,
-      90,    94,    95,    96,    97,    98,   102,   103,   107,   108,
-     112,   116,   117,   118,   119,   120,   121,   125,   126,   130,
-     131,   132,   136,   137,   141,   142,   143,   144,   145,   146,
-     147,   148,   152,   153,   157,   158,   162,   166,   169,   170,
-     173,   174,   178,   179,   180,   181,   182,   183,   184,   185,
-     186,   187,   188,   189,   190,   191,   192,   193,   194,   195,
-     196,   197
+       0,    71,    71,    74,    75,    79,    84,    92,    98,   107,
+     111,   117,   118,   119,   120,   121,   125,   133,   143,   144,
+     148,   160,   166,   172,   177,   182,   188,   196,   197,   201,
+     202,   203,   207,   208,   212,   213,   214,   215,   216,   217,
+     218,   219,   223,   224,   228,   229,   233,   237,   240,   245,
+     252,   256,   263,   264,   265,   266,   267,   268,   269,   270,
+     271,   272,   273,   274,   275,   276,   277,   278,   279,   283,
+     287,   288
 };
 #endif
 
@@ -1248,65 +1248,65 @@ yyreduce:
 
   case 5: /* Function: TypeF ID '(' ParamList ')' '{' Decls Statement_Seq '}'  */
 #line 79 "sint.y"
-                                                                 {
+                                                               {
 		set_type((yyvsp[-7].simbolo).posicao, (yyvsp[-8].val));
 		set_categoria((yyvsp[-7].simbolo).posicao, CAT_FUNC);
 		set_num_param((yyvsp[-7].simbolo).posicao, (yyvsp[-5].id_list).tam);
 	}
-#line 1253 "sint.c"
+#line 1257 "sint.c"
     break;
 
   case 6: /* Function: TypeF ID '(' ')' '{' Decls Statement_Seq '}'  */
-#line 80 "sint.y"
-                                                         {
+#line 84 "sint.y"
+                                                       {
 		set_type((yyvsp[-6].simbolo).posicao, (yyvsp[-7].val));
 		set_categoria((yyvsp[-6].simbolo).posicao, CAT_FUNC);
 		set_num_param((yyvsp[-6].simbolo).posicao, 0);
 	}
-#line 1259 "sint.c"
+#line 1267 "sint.c"
     break;
 
   case 7: /* FunctionCall: ID '(' ArgList ')'  */
-#line 84 "sint.y"
+#line 92 "sint.y"
                        {
 		verifica_func_declarada((yyvsp[-3].simbolo).posicao);
 		if (param_args_diferentes((yyvsp[-3].simbolo).posicao, (yyvsp[-1].id_list).tam))
 			yyerror("Argumentos e parâmetros da função não coincidem.");
 		(yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo;
 	}
-#line 1265 "sint.c"
+#line 1278 "sint.c"
     break;
 
   case 8: /* FunctionCall: ID '(' ')'  */
-#line 85 "sint.y"
+#line 98 "sint.y"
                   {
 		verifica_func_declarada((yyvsp[-2].simbolo).posicao);
 		if (param_args_diferentes((yyvsp[-2].simbolo).posicao, 0))
 			yyerror("Argumentos e parâmetros da função não coincidem.");
 		(yyval.val) = Tabela[(yyvsp[-2].simbolo).posicao].tipo;
 	}
-#line 1271 "sint.c"
+#line 1289 "sint.c"
     break;
 
   case 9: /* ArgList: ArgList ',' Arg  */
-#line 89 "sint.y"
+#line 107 "sint.y"
                     {
 		(yyval.id_list) = (yyvsp[-2].id_list);
 		(yyval.id_list).tam = (yyvsp[-2].id_list).tam + 1;
 	}
-#line 1277 "sint.c"
+#line 1298 "sint.c"
     break;
 
   case 10: /* ArgList: Arg  */
-#line 90 "sint.y"
+#line 111 "sint.y"
           {
 		(yyval.id_list).tam = 1;
 	}
-#line 1283 "sint.c"
+#line 1306 "sint.c"
     break;
 
   case 16: /* ParamList: ParamList ',' Type ID  */
-#line 102 "sint.y"
+#line 125 "sint.y"
                           {
 		(yyval.id_list) = (yyvsp[-3].id_list);
 		(yyval.id_list).ids[(yyvsp[-3].id_list).tam] = (yyvsp[0].simbolo).posicao;
@@ -1315,11 +1315,11 @@ yyreduce:
 		set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val));
 		set_categoria((yyvsp[0].simbolo).posicao, CAT_VAR);
 	}
-#line 1289 "sint.c"
+#line 1319 "sint.c"
     break;
 
   case 17: /* ParamList: Type ID  */
-#line 103 "sint.y"
+#line 133 "sint.y"
               {
 		(yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao;
 		(yyval.id_list).init_tipo[0] = -1;
@@ -1327,11 +1327,11 @@ yyreduce:
 		set_type((yyvsp[0].simbolo).posicao, (yyvsp[-1].val));
 		set_categoria((yyvsp[0].simbolo).posicao, CAT_VAR);
 	}
-#line 1295 "sint.c"
+#line 1331 "sint.c"
     break;
 
   case 20: /* Decl: Type IDs  */
-#line 112 "sint.y"
+#line 148 "sint.y"
                  {
 		int i;
 		for (i = 0; i < (yyvsp[0].id_list).tam; i++) {
@@ -1341,274 +1341,268 @@ yyreduce:
 			set_categoria((yyvsp[0].id_list).ids[i], CAT_VAR);
 		}
 	}
-#line 1301 "sint.c"
+#line 1345 "sint.c"
     break;
 
   case 21: /* IDs: IDs ',' ID  */
-#line 116 "sint.y"
+#line 160 "sint.y"
                      {
 		(yyval.id_list) = (yyvsp[-2].id_list);
 		(yyval.id_list).ids[(yyvsp[-2].id_list).tam] = (yyvsp[0].simbolo).posicao;
 		(yyval.id_list).init_tipo[(yyvsp[-2].id_list).tam] = -1;
 		(yyval.id_list).tam = (yyvsp[-2].id_list).tam + 1;
 	}
-#line 1307 "sint.c"
+#line 1356 "sint.c"
     break;
 
   case 22: /* IDs: IDs ',' ID '[' NUM ']'  */
-#line 117 "sint.y"
+#line 166 "sint.y"
                                  {
 		(yyval.id_list) = (yyvsp[-5].id_list);
 		(yyval.id_list).ids[(yyvsp[-5].id_list).tam] = (yyvsp[-3].simbolo).posicao;
 		(yyval.id_list).init_tipo[(yyvsp[-5].id_list).tam] = -1;
 		(yyval.id_list).tam = (yyvsp[-5].id_list).tam + 1;
 	}
-#line 1313 "sint.c"
+#line 1367 "sint.c"
     break;
 
   case 23: /* IDs: ID  */
-#line 118 "sint.y"
+#line 172 "sint.y"
              {
 		(yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao;
 		(yyval.id_list).init_tipo[0] = -1;
 		(yyval.id_list).tam = 1;
 	}
-#line 1319 "sint.c"
+#line 1377 "sint.c"
     break;
 
   case 24: /* IDs: ID '[' NUM ']'  */
-#line 119 "sint.y"
+#line 177 "sint.y"
                          {
 		(yyval.id_list).ids[0] = (yyvsp[-3].simbolo).posicao;
 		(yyval.id_list).init_tipo[0] = -1;
 		(yyval.id_list).tam = 1;
 	}
-#line 1325 "sint.c"
+#line 1387 "sint.c"
     break;
 
   case 25: /* IDs: IDs ',' AtribuicaoD  */
-#line 120 "sint.y"
+#line 182 "sint.y"
                               {
 		(yyval.id_list) = (yyvsp[-2].id_list);
 		(yyval.id_list).ids[(yyvsp[-2].id_list).tam] = (yyvsp[0].simbolo).posicao;
 		(yyval.id_list).init_tipo[(yyvsp[-2].id_list).tam] = (yyvsp[0].simbolo).tipo;
 		(yyval.id_list).tam = (yyvsp[-2].id_list).tam + 1;
 	}
-#line 1331 "sint.c"
+#line 1398 "sint.c"
     break;
 
   case 26: /* IDs: AtribuicaoD  */
-#line 121 "sint.y"
+#line 188 "sint.y"
                       {
 		(yyval.id_list).ids[0] = (yyvsp[0].simbolo).posicao;
 		(yyval.id_list).init_tipo[0] = (yyvsp[0].simbolo).tipo;
 		(yyval.id_list).tam = 1;
 	}
-#line 1337 "sint.c"
+#line 1408 "sint.c"
     break;
 
   case 27: /* TypeF: VOID  */
-#line 125 "sint.y"
+#line 196 "sint.y"
                { (yyval.val) = VOID; }
-#line 1343 "sint.c"
+#line 1414 "sint.c"
     break;
 
   case 28: /* TypeF: Type  */
-#line 126 "sint.y"
+#line 197 "sint.y"
                { (yyval.val) = (yyvsp[0].val); }
-#line 1349 "sint.c"
+#line 1420 "sint.c"
     break;
 
   case 29: /* Type: INT  */
-#line 130 "sint.y"
+#line 201 "sint.y"
               { (yyval.val) = INT; }
-#line 1355 "sint.c"
+#line 1426 "sint.c"
     break;
 
   case 30: /* Type: CHAR  */
-#line 131 "sint.y"
+#line 202 "sint.y"
                { (yyval.val) = CHAR; }
-#line 1361 "sint.c"
+#line 1432 "sint.c"
     break;
 
   case 31: /* Type: FLOAT  */
-#line 132 "sint.y"
+#line 203 "sint.y"
                 { (yyval.val) = FLOAT; }
-#line 1367 "sint.c"
-    break;
-
-  case 34: /* Statement: Atribuicao ';'  */
-#line 141 "sint.y"
-                         { /* TODO: verificar uso de variável declarada antes da atribuição */ }
-#line 1373 "sint.c"
+#line 1438 "sint.c"
     break;
 
   case 48: /* Atribuicao: ID '[' NUM ']' '=' Exp  */
-#line 169 "sint.y"
+#line 240 "sint.y"
                                     {
 		verifica_var_declarada((yyvsp[-5].simbolo).posicao);
 		verifica_tipos_atrib(Tabela[(yyvsp[-5].simbolo).posicao].tipo, (yyvsp[0].val));
 		(yyval.val) = (yyvsp[-5].simbolo).posicao;
 	}
-#line 1379 "sint.c"
+#line 1448 "sint.c"
     break;
 
   case 49: /* Atribuicao: ID '=' Exp  */
-#line 170 "sint.y"
+#line 245 "sint.y"
                  {
 		verifica_var_declarada((yyvsp[-2].simbolo).posicao);
 		verifica_tipos_atrib(Tabela[(yyvsp[-2].simbolo).posicao].tipo, (yyvsp[0].val));
 		(yyval.val) = (yyvsp[-2].simbolo).posicao;
 	}
-#line 1385 "sint.c"
+#line 1458 "sint.c"
     break;
 
   case 50: /* AtribuicaoD: ID '[' NUM ']' '=' Exp  */
-#line 173 "sint.y"
+#line 252 "sint.y"
                                      {
 		(yyval.simbolo).posicao = (yyvsp[-5].simbolo).posicao;
 		(yyval.simbolo).tipo = (yyvsp[0].val);
 	}
-#line 1391 "sint.c"
+#line 1467 "sint.c"
     break;
 
   case 51: /* AtribuicaoD: ID '=' Exp  */
-#line 174 "sint.y"
+#line 256 "sint.y"
                  {
 		(yyval.simbolo).posicao = (yyvsp[-2].simbolo).posicao;
 		(yyval.simbolo).tipo = (yyvsp[0].val);
 	}
-#line 1397 "sint.c"
+#line 1476 "sint.c"
     break;
 
   case 52: /* Exp: Exp '+' Exp  */
-#line 178 "sint.y"
+#line 263 "sint.y"
                       { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val), (yyvsp[0].val)); }
-#line 1403 "sint.c"
+#line 1482 "sint.c"
     break;
 
   case 53: /* Exp: Exp '-' Exp  */
-#line 179 "sint.y"
+#line 264 "sint.y"
                       { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val), (yyvsp[0].val)); }
-#line 1409 "sint.c"
+#line 1488 "sint.c"
     break;
 
   case 54: /* Exp: Exp '*' Exp  */
-#line 180 "sint.y"
-                      { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val),(yyvsp[0].val));  }
-#line 1415 "sint.c"
+#line 265 "sint.y"
+                      { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val), (yyvsp[0].val)); }
+#line 1494 "sint.c"
     break;
 
   case 55: /* Exp: Exp '/' Exp  */
-#line 181 "sint.y"
+#line 266 "sint.y"
                       { (yyval.val) = retorna_maior_tipo((yyvsp[-2].val), (yyvsp[0].val)); }
-#line 1421 "sint.c"
+#line 1500 "sint.c"
     break;
 
   case 56: /* Exp: Exp '>' Exp  */
-#line 182 "sint.y"
+#line 267 "sint.y"
                       { (yyval.val) = INT; }
-#line 1427 "sint.c"
+#line 1506 "sint.c"
     break;
 
   case 57: /* Exp: Exp '<' Exp  */
-#line 183 "sint.y"
+#line 268 "sint.y"
                       { (yyval.val) = INT; }
-#line 1433 "sint.c"
+#line 1512 "sint.c"
     break;
 
   case 58: /* Exp: Exp GE Exp  */
-#line 184 "sint.y"
+#line 269 "sint.y"
                      { (yyval.val) = INT; }
-#line 1439 "sint.c"
+#line 1518 "sint.c"
     break;
 
   case 59: /* Exp: Exp LE Exp  */
-#line 185 "sint.y"
+#line 270 "sint.y"
                      { (yyval.val) = INT; }
-#line 1445 "sint.c"
+#line 1524 "sint.c"
     break;
 
   case 60: /* Exp: Exp EQ Exp  */
-#line 186 "sint.y"
+#line 271 "sint.y"
                      { (yyval.val) = INT; }
-#line 1451 "sint.c"
+#line 1530 "sint.c"
     break;
 
   case 61: /* Exp: Exp NEQ Exp  */
-#line 187 "sint.y"
+#line 272 "sint.y"
                       { (yyval.val) = INT; }
-#line 1457 "sint.c"
+#line 1536 "sint.c"
     break;
 
   case 62: /* Exp: Exp OR Exp  */
-#line 188 "sint.y"
+#line 273 "sint.y"
                      { (yyval.val) = INT; }
-#line 1463 "sint.c"
+#line 1542 "sint.c"
     break;
 
   case 63: /* Exp: Exp AND Exp  */
-#line 189 "sint.y"
+#line 274 "sint.y"
                       { (yyval.val) = INT; }
-#line 1469 "sint.c"
+#line 1548 "sint.c"
     break;
 
   case 64: /* Exp: NOT Exp  */
-#line 190 "sint.y"
+#line 275 "sint.y"
                   { (yyval.val) = INT; }
-#line 1475 "sint.c"
+#line 1554 "sint.c"
     break;
 
   case 65: /* Exp: '(' Exp ')'  */
-#line 191 "sint.y"
+#line 276 "sint.y"
                       { (yyval.val) = (yyvsp[-1].val); }
-#line 1481 "sint.c"
+#line 1560 "sint.c"
     break;
 
   case 66: /* Exp: NUM  */
-#line 192 "sint.y"
+#line 277 "sint.y"
               { (yyval.val) = INT; }
-#line 1487 "sint.c"
+#line 1566 "sint.c"
     break;
 
   case 67: /* Exp: NUM_REAL  */
-#line 193 "sint.y"
-                   { (yyval.val) = FLOAT;}
-#line 1493 "sint.c"
+#line 278 "sint.y"
+                   { (yyval.val) = FLOAT; }
+#line 1572 "sint.c"
     break;
 
   case 68: /* Exp: ID '[' Exp ']'  */
-#line 194 "sint.y"
+#line 279 "sint.y"
                          {
 		verifica_var_declarada((yyvsp[-3].simbolo).posicao);
 		(yyval.val) = Tabela[(yyvsp[-3].simbolo).posicao].tipo;
 	}
-#line 1499 "sint.c"
+#line 1581 "sint.c"
     break;
 
   case 69: /* Exp: ID  */
-#line 195 "sint.y"
+#line 283 "sint.y"
               {
 		verifica_var_declarada((yyvsp[0].simbolo).posicao);
 		(yyval.val) = Tabela[(yyvsp[0].simbolo).posicao].tipo;
 	}
-#line 1505 "sint.c"
+#line 1590 "sint.c"
     break;
 
   case 70: /* Exp: CHARACTERE  */
-#line 196 "sint.y"
-                     { (yyval.val) = CHAR;/* TODO: definir tipo char para literal de caractere */ }
-#line 1511 "sint.c"
+#line 287 "sint.y"
+                     { (yyval.val) = CHAR; }
+#line 1596 "sint.c"
     break;
 
   case 71: /* Exp: FunctionCall  */
-#line 197 "sint.y"
+#line 288 "sint.y"
                        { (yyval.val) = (yyvsp[0].val); }
-#line 1517 "sint.c"
+#line 1602 "sint.c"
     break;
 
 
-#line 1521 "sint.c"
+#line 1606 "sint.c"
 
       default: break;
     }
@@ -1801,8 +1795,8 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 201 "sint.y"
-  
+#line 291 "sint.y"
+
 int main(int argc, char **argv) {
 	if (argc < 2) {
 		fprintf(stderr, "Informe o arquivo de entrada.\n");
@@ -1817,7 +1811,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-
 void verifica_var_declarada(int pos){
 	if (pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].categoria != CAT_VAR)
 		yyerror("Uso de variável não declarada!");
@@ -1827,6 +1820,7 @@ void verifica_func_declarada(int pos){
 	if (pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].categoria != CAT_FUNC)
 		yyerror("Uso de função não declarada!");
 }
+
 void verifica_tipos_atrib(int tipo_destino, int tipo_origem){
 	if (tipos_inconsistentes_atrib(tipo_destino, tipo_origem))
 		yyerror("Tipos incompatíveis!");
