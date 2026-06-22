@@ -1,14 +1,13 @@
-%{
-#include "analex.c"
+%{ 
+#include "analex.c" 
 void verifica_var_declarada(int pos);
 void verifica_func_declarada(int pos);
-void verifica_tipos_atrib(int tipo_destino, int tipo_origem);
+void verifica_tipos_atrib(int tipo1, int tipo2);
 %}
 
 %union{
 	struct ids{
 		int ids[50];
-		int init_tipo[50];
 		int tam;
 	} id_list;
 	struct simb{
@@ -21,12 +20,12 @@ void verifica_tipos_atrib(int tipo_destino, int tipo_origem);
 	char cval;
 }
 
-%token <val> NUM
-%token <fval> NUM_REAL
-%token <simbolo> ID
+%token <val> NUM 
+%token NUM_REAL
+%token <simbolo> ID 
 %token FOR
 %token WHILE
-%token IF
+%token IF 
 %token ELSE
 %token ENDIF
 %token CHAR
@@ -43,10 +42,10 @@ void verifica_tipos_atrib(int tipo_destino, int tipo_origem);
 %token NEQ
 %token DO
 %token STRING
-%token <cval> CHARACTERE
+%token CHARACTERE
 
 %type <id_list> IDs ParamList ArgList
-%type <simbolo> AtribuicaoD
+%type <simbolo> AtribuicaoD 
 %type <val> Atribuicao Type FunctionCall TypeF
 %type <val> Exp
 
@@ -66,51 +65,29 @@ void verifica_tipos_atrib(int tipo_destino, int tipo_origem);
 
 %right '(' '['
 
+
 %start ProgL
 %%
-ProgL : Prog { printf("Compilação Finalizada"); }
+ProgL : Prog { /* TODO: implementar ação semântica para finalizar a compilação (ex. exibir mensagem) */ }
     ;
-
+    
 Prog : Prog Function
 	| Function
-	;
+	;	
 
 Function :
-	TypeF ID '(' ParamList ')' '{' Decls Statement_Seq '}' {
-		set_type($2.posicao, $1);
-		set_categoria($2.posicao, CAT_FUNC);
-		set_num_param($2.posicao, $4.tam);
-	}
-	| TypeF ID '(' ')' '{' Decls Statement_Seq '}' {
-		set_type($2.posicao, $1);
-		set_categoria($2.posicao, CAT_FUNC);
-		set_num_param($2.posicao, 0);
-	}
+	TypeF ID '(' ParamList ')' '{' Decls Statement_Seq '}'   { /* TODO: registrar o tipo de retorno da função e a quantidade de parâmetros declarados */ }
+	| TypeF ID '(' ')' '{' Decls Statement_Seq '}'   { /* TODO: registrar função sem parâmetros e associar seu tipo de retorno */ }
 	;
-
+	
 FunctionCall :
-    ID '(' ArgList ')' {
-		verifica_func_declarada($1.posicao);
-		if (param_args_diferentes($1.posicao, $3.tam))
-			yyerror("Argumentos e parâmetros da função não coincidem.");
-		$$ = Tabela[$1.posicao].tipo;
-	}
-    | ID '('  ')' {
-		verifica_func_declarada($1.posicao);
-		if (param_args_diferentes($1.posicao, 0))
-			yyerror("Argumentos e parâmetros da função não coincidem.");
-		$$ = Tabela[$1.posicao].tipo;
-	}
+    ID '(' ArgList ')' { /* TODO: validar a existência da função, checar número de argumentos e definir o tipo produzido pela chamada */ }
+    | ID '('  ')' { /* TODO: validar chamada de função sem argumentos e definir o tipo de retorno correspondente */ }
     ;
-
+    
 ArgList:
-    ArgList ',' Arg {
-		$$ = $1;
-		$$.tam = $1.tam + 1;
-	}
-    | Arg {
-		$$.tam = 1;
-	}
+    ArgList ',' Arg { /* TODO: acumular quantidade de argumentos já reconhecidos */ }
+    | Arg { /* TODO: iniciar contagem de argumentos */ }
     ;
 
 Arg :
@@ -120,96 +97,48 @@ Arg :
     | NUM
     | STRING
 	;
-
-ParamList:
-    ParamList ',' Type ID {
-		$$ = $1;
-		$$.ids[$1.tam] = $4.posicao;
-		$$.init_tipo[$1.tam] = -1;
-		$$.tam = $1.tam + 1;
-		set_type($4.posicao, $3);
-		set_categoria($4.posicao, CAT_VAR);
-	}
-    | Type ID {
-		$$.ids[0] = $2.posicao;
-		$$.init_tipo[0] = -1;
-		$$.tam = 1;
-		set_type($2.posicao, $1);
-		set_categoria($2.posicao, CAT_VAR);
-	}
-	;
-
+	
+ParamList: 
+    ParamList ',' Type ID { /* TODO: propagar símbolos já coletados, adicionar novo parâmetro e registrar seu tipo */ }
+    | Type ID { /* TODO: inicializar lista de parâmetros com o identificador atual e configurar seu tipo */ }
+	; 
+		
 Decls:
-	  Decl ';' Decls
-	|
+	  Decl ';' Decls  
+	| 
 	;
 
 Decl:
-	Type IDs {
-		int i;
-		for (i = 0; i < $2.tam; i++) {
-			if ($2.init_tipo[i] != -1)
-				verifica_tipos_atrib($1, $2.init_tipo[i]);
-			set_type($2.ids[i], $1);
-			set_categoria($2.ids[i], CAT_VAR);
-		}
-	}
-	;
-
+	Type IDs { /* TODO: atribuir o tipo declarado a cada identificador e marcar que não se trata de função */ }
+	; 
+	
 IDs :
-	  IDs ',' ID {
-		$$ = $1;
-		$$.ids[$1.tam] = $3.posicao;
-		$$.init_tipo[$1.tam] = -1;
-		$$.tam = $1.tam + 1;
-	}
-	| IDs ',' ID '[' NUM ']' {
-		$$ = $1;
-		$$.ids[$1.tam] = $3.posicao;
-		$$.init_tipo[$1.tam] = -1;
-		$$.tam = $1.tam + 1;
-	}
-	| ID {
-		$$.ids[0] = $1.posicao;
-		$$.init_tipo[0] = -1;
-		$$.tam = 1;
-	}
-	| ID '[' NUM ']' {
-		$$.ids[0] = $1.posicao;
-		$$.init_tipo[0] = -1;
-		$$.tam = 1;
-	}
-	| IDs ',' AtribuicaoD {
-		$$ = $1;
-		$$.ids[$1.tam] = $3.posicao;
-		$$.init_tipo[$1.tam] = $3.tipo;
-		$$.tam = $1.tam + 1;
-	}
-	| AtribuicaoD {
-		$$.ids[0] = $1.posicao;
-		$$.init_tipo[0] = $1.tipo;
-		$$.tam = 1;
-	}
+	  IDs ',' ID { /* TODO: combinar identificadores já armazenados com o novo símbolo simples */ }
+	| IDs ',' ID '[' NUM ']' { /* TODO: registrar identificador vetorial adicional */ }
+	| ID { /* TODO: iniciar lista com identificador simples */ }
+	| ID '[' NUM ']' { /* TODO: iniciar lista com identificador vetorial */ }
+	| IDs ',' AtribuicaoD { /* TODO: incluir identificador proveniente de declaração com atribuição */ }
+	| AtribuicaoD { /* TODO: iniciar lista com identificador declarado via atribuição */ }
 	;
-
+	
 TypeF :
-	  VOID { $$ = VOID; }
-	| Type { $$ = $1; }
+	  VOID { /* TODO: definir o tipo de retorno como void */ }
+	| Type { /* TODO: propagar tipo retornado pela produção Type */ }
 	;
 
 Type :
-	  INT { $$ = INT; }
-	| CHAR { $$ = CHAR; }
-	| FLOAT { $$ = FLOAT; }
+	  INT { /* TODO: associar tipo inteiro ao token INT */ }
+	| CHAR { /* TODO: associar tipo char ao token CHAR */ }
+	| FLOAT { /* TODO: associar tipo float ao token FLOAT */ }
 	;
-
+			
 Statement_Seq :
 	Statement Statement_Seq
 	|
 	;
-
-Statement:
-	  Atribuicao ';'
+		
+Statement: 
+	  Atribuicao ';' { /* TODO: verificar uso de variável declarada antes da atribuição */ }
 	| If
 	| While
 	| DoWhile
@@ -223,7 +152,7 @@ Compound_Stt :
 	  Statement
 	| '{' Statement_Seq '}'
 	;
-
+		
 If :
 	  IF '(' Exp ')' Compound_Stt ENDIF
 	| IF '(' Exp ')' Compound_Stt ELSE Compound_Stt ENDIF
@@ -236,84 +165,53 @@ While:
 DoWhile:
 	DO Compound_Stt WHILE '(' Exp ')' ';'
 	;
-
-Atribuicao : ID '[' NUM ']' '=' Exp {
-		verifica_var_declarada($1.posicao);
-		verifica_tipos_atrib(Tabela[$1.posicao].tipo, $6);
-		$$ = $1.posicao;
-	}
-    | ID '=' Exp {
-		verifica_var_declarada($1.posicao);
-		verifica_tipos_atrib(Tabela[$1.posicao].tipo, $3);
-		$$ = $1.posicao;
-	}
+			
+Atribuicao : ID '[' NUM ']' '=' Exp { /* TODO: garantir que o identificador vetorial foi declarado, checar compatibilidade de tipos e devolver posição na tabela */ }
+    | ID '=' Exp { /* TODO: garantir que o identificador foi declarado, validar tipos e devolver posição na tabela */ }
 	;
-
-AtribuicaoD : ID '[' NUM ']' '=' Exp {
-		$$.posicao = $1.posicao;
-		$$.tipo = $6;
-	}
-    | ID '=' Exp {
-		$$.posicao = $1.posicao;
-		$$.tipo = $3;
-	}
+	
+AtribuicaoD : ID '[' NUM ']' '=' Exp { /* TODO: registrar posição do identificador e o tipo resultante da expressão */ }
+    | ID '=' Exp { /* TODO: registrar posição do identificador e o tipo da expressão atribuída */ }
 	;
-
+				
 Exp :
-	  Exp '+' Exp { $$ = retorna_maior_tipo($1, $3); }
-	| Exp '-' Exp { $$ = retorna_maior_tipo($1, $3); }
-	| Exp '*' Exp { $$ = retorna_maior_tipo($1, $3); }
-	| Exp '/' Exp { $$ = retorna_maior_tipo($1, $3); }
-	| Exp '>' Exp { $$ = INT; }
-	| Exp '<' Exp { $$ = INT; }
-	| Exp GE Exp { $$ = INT; }
-	| Exp LE Exp { $$ = INT; }
-	| Exp EQ Exp { $$ = INT; }
-	| Exp NEQ Exp { $$ = INT; }
-	| Exp OR Exp { $$ = INT; }
-	| Exp AND Exp { $$ = INT; }
-	| NOT Exp { $$ = INT; }
-	| '(' Exp ')' { $$ = $2; }
-	| NUM { $$ = INT; }
-	| NUM_REAL { $$ = FLOAT; }
-	| ID '[' Exp ']' {
-		verifica_var_declarada($1.posicao);
-		$$ = Tabela[$1.posicao].tipo;
-	}
-	| ID  {
-		verifica_var_declarada($1.posicao);
-		$$ = Tabela[$1.posicao].tipo;
-	}
-	| CHARACTERE { $$ = CHAR; }
-	| FunctionCall { $$ = $1; }
-	;
+	  Exp '+' Exp { /* TODO: definir tipo resultante da soma considerando promoção de tipos */ }
+	| Exp '-' Exp { /* TODO: definir tipo resultante da subtração considerando promoção de tipos */ }
+	| Exp '*' Exp { /* TODO: definir tipo resultante da multiplicação considerando promoção de tipos */ }
+	| Exp '/' Exp { /* TODO: definir tipo resultante da divisão considerando promoção de tipos */ }
+	| Exp '>' Exp { /* TODO: garantir resultado inteiro para comparação maior que */ }
+	| Exp '<' Exp { /* TODO: garantir resultado inteiro para comparação menor que */ }
+	| Exp GE Exp { /* TODO: garantir resultado inteiro para comparação maior ou igual */ }
+	| Exp LE Exp { /* TODO: garantir resultado inteiro para comparação menor ou igual */ }
+	| Exp EQ Exp { /* TODO: garantir resultado inteiro para comparação de igualdade */ }
+	| Exp NEQ Exp { /* TODO: garantir resultado inteiro para comparação de diferença */ }
+	| Exp OR Exp { /* TODO: garantir resultado inteiro para operação lógica OU */ }
+	| Exp AND Exp { /* TODO: garantir resultado inteiro para operação lógica E */ }
+	| NOT Exp { /* TODO: garantir resultado inteiro para negação lógica */ }
+	| '(' Exp ')' { /* TODO: propagar tipo da expressão entre parênteses */ }
+	| NUM { /* TODO: definir tipo inteiro para literais numéricos inteiros */ }
+	| NUM_REAL { /* TODO: definir tipo float para literais numéricos reais */ }
+	| ID '[' Exp ']' { /* TODO: verificar declaração do vetor e retornar seu tipo base */ } 
+	| ID  { /* TODO: verificar declaração do identificador e retornar seu tipo */ } 	   
+	| CHARACTERE { /* TODO: definir tipo char para literal de caractere */ }
+	| FunctionCall { /* TODO: usar tipo de retorno registrado para a função chamada */ }
+	;   
+	
+	
+%%  
+int main(int argc, char **argv) {     
+  yyin = fopen(argv[1],"r");
+  yyparse();      
+} 
 
-%%
-int main(int argc, char **argv) {
-	if (argc < 2) {
-		fprintf(stderr, "Informe o arquivo de entrada.\n");
-		return 1;
-	}
-	yyin = fopen(argv[1],"r");
-	if (!yyin) {
-		perror(argv[1]);
-		return 1;
-	}
-	yyparse();
-	return 0;
-}
 
 void verifica_var_declarada(int pos){
-	if (pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].categoria != CAT_VAR)
-		yyerror("Uso de variável não declarada!");
+	/* TODO: implementar verificação de declaração prévia do identificador na tabela de símbolos */
 }
 
 void verifica_func_declarada(int pos){
-	if (pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].categoria != CAT_FUNC)
-		yyerror("Uso de função não declarada!");
+	/* TODO: implementar verificação que garanta existência da função na tabela de símbolos */
 }
-
-void verifica_tipos_atrib(int tipo_destino, int tipo_origem){
-	if (tipos_inconsistentes_atrib(tipo_destino, tipo_origem))
-		yyerror("Tipos incompatíveis!");
+void verifica_tipos_atrib(int tipo1, int tipo2){
+	/* TODO: implementar verificação de compatibilidade entre o tipo do identificador e da expressão */
 }
