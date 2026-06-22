@@ -6,7 +6,7 @@ int retorna_maior_tipo(int tipo1, int tipo2){
 	if(tipo1 == FLOAT || tipo2 == FLOAT)
 		return FLOAT;
 
-	if(tipo1 == INT || tipo2 == INT)
+	if(tipo1 == INT && tipo2 == INT)
 		return INT;
 
 	if(tipo1 == CHAR && tipo2 == CHAR)

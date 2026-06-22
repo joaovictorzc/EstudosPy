@@ -291,12 +291,12 @@ Exp :
 	;
 
 %%
+
 int main(int argc, char **argv) {
   yyin = fopen(argv[1],"r");
   yyparse();
   return 0;
 }
-
 
 void verifica_var_declarada(int pos){
 	if(pos < 0 || pos >= proximo_elem || Tabela[pos].tipo == -1 || Tabela[pos].num_param != -1)
