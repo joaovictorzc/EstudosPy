@@ -29,6 +29,9 @@ struct symbol aux;
 	strcpy(aux.nome,nome);
 	Tabela[proximo_elem]=aux;
 	Tabela[proximo_elem].tipo = -1;
+	Tabela[proximo_elem].tam = 0;
+	Tabela[proximo_elem].valor = 0;
+	Tabela[proximo_elem].num_param = -1;
 	return proximo_elem++;	     
 }
 
